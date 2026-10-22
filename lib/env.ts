@@ -25,3 +25,10 @@ export function serverEnv(): ServerEnv {
   }
   return cached;
 }
+
+// For keys only some routes need (Stripe, Resend, cron).
+export function requiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing environment variable ${name}. See .env.example.`);
+  return value;
+}

@@ -3,10 +3,10 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CheckoutButton } from "@/components/cart/CheckoutButton";
 import { useCart } from "@/lib/cart/store";
 import { formatRM } from "@/lib/money";
 
-// Step 1 version: lists what was added. Checkout arrives in step 2.
 export default function CartPage() {
   const { items, setQuantity, remove } = useCart();
   const [mounted, setMounted] = useState(false);
@@ -49,6 +49,7 @@ export default function CartPage() {
         <span>{formatRM(subtotal)}</span>
       </div>
       <p className="text-xs text-neutral-500">Shipping is added at checkout: RM 8.00 Peninsular, RM 15.00 Sabah, Sarawak and Labuan.</p>
+      <CheckoutButton />
     </div>
   );
 }
