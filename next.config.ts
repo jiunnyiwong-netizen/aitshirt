@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // sharp is a native module used by the print renderer.
+  serverExternalPackages: ["sharp"],
 };
 
 export default nextConfig;
