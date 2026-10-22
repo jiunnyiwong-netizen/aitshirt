@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductDesigner } from "@/components/designer/ProductDesigner";
-import { formatRM } from "@/lib/money";
 import { getProduct } from "@/lib/products";
 
 export const revalidate = 60;
@@ -11,11 +11,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   if (!product) notFound();
 
   return (
-    <div className="mx-auto max-w-md space-y-4 lg:max-w-lg">
+    <div className="space-y-4">
+      <nav className="text-sm text-muted">
+        <Link href="/#shirts" className="underline">All shirts</Link>
+      </nav>
       <div>
-        <h1 className="text-xl font-bold">{product.name}</h1>
-        <p className="font-semibold">{formatRM(product.price_sen)}</p>
-        {product.description && <p className="mt-1 text-sm text-neutral-600">{product.description}</p>}
+        <h1 className="text-2xl font-extrabold tracking-tight">{product.name}</h1>
+        {product.description && <p className="text-sm text-muted">{product.description}</p>}
       </div>
       <ProductDesigner product={product} />
     </div>

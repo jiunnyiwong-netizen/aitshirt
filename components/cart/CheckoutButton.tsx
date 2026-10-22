@@ -42,11 +42,11 @@ export function CheckoutButton() {
         type="button"
         onClick={checkout}
         disabled={busy || items.length === 0}
-        className="h-12 w-full rounded-lg bg-neutral-900 font-semibold text-white disabled:opacity-60"
+        className="h-12 w-full rounded-full bg-brand font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
       >
         {busy ? "Opening secure checkout…" : "Checkout"}
       </button>
-      <p className="text-center text-xs text-neutral-500">Pay by card or FPX online banking. Payments are handled by Stripe.</p>
+      <p className="text-center text-xs text-muted">Pay by card or FPX online banking. Payments are handled by Stripe.</p>
     </div>
   );
 }

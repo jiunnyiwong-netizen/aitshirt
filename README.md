@@ -10,9 +10,27 @@ Next.js (App Router) · Supabase · Stripe Checkout · Resend · Vercel
 2. Copy `.env.example` to `.env.local` and fill in the Supabase keys
    (Supabase → Project settings → API). `NEXT_PUBLIC_SITE_URL` stays `http://localhost:3000` locally.
 3. The database is already set up in the `tee-store` Supabase project (tables, storage bucket and the 3 placeholder shirts).
-   For a fresh project, run `supabase/migrations/0001_init.sql`, then `0002_cleanup.sql`, then `supabase/seed.sql` in the SQL editor.
+   For a fresh project, run the files in `supabase/migrations/` in order, then `supabase/seed.sql`, in the SQL editor.
 4. `npm run dev` and open http://localhost:3000. On your phone, use your computer's network address
    (for example `http://192.168.1.20:3000`) while on the same Wi-Fi.
+
+## Preview without any keys
+
+Set `DEMO_MODE=true` in `.env.local` (Supabase values can stay empty) and run `npm run dev`. The home page and the
+designer work with the 3 placeholder shirts; uploading, AI restyle and checkout need the real keys.
+
+## Restyle with AI (Gemini)
+
+1. Create an API key in [Google AI Studio](https://aistudio.google.com/apikey) and turn on billing for it.
+   On the free tier Google may use the photos sent to it to improve its products, which our privacy notice does not allow.
+2. In `.env.local` set `GEMINI_API_KEY`, `FEATURE_AI_RESTYLE=true` and `NEXT_PUBLIC_FEATURE_AI_RESTYLE=true`.
+3. Restart `npm run dev`, upload a photo on a product page, and tap a style under **Restyle with AI**.
+   The result replaces the photo on the shirt, keeping its position. Tap **Original** to go back.
+4. Each customer gets `AI_DAILY_LIMIT_PER_CUSTOMER` restyles a day (default 6), and the whole site `AI_DAILY_LIMIT_TOTAL`
+   (default 300), to cap the bill. Every call is logged in the `ai_requests` table.
+5. `gemini-2.5-flash-image` returns about 1K px images, which print sharply up to roughly A5/A4 size; the DPI warning
+   tells the customer. For full A3 sharpness set `GEMINI_IMAGE_MODEL` to a Gemini "pro" image model and `GEMINI_IMAGE_SIZE=4K`
+   (costs more per image).
 
 ## How to test each step
 

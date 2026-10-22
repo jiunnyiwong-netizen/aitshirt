@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { STYLE_KEYS, stylePath } from "@/lib/ai/styles";
 import { getClientId } from "@/lib/client-id";
 import { effectiveDpi, MAX_WIDTH_FRACTION } from "@/lib/print-area";
 import { renderPrintPng } from "@/lib/render/print";
@@ -10,6 +11,7 @@ export const maxDuration = 60;
 
 const body = z.object({
   colour: z.string().min(1),
+  style: z.enum(STYLE_KEYS).default("original"),
   transform: z.object({
     cx: z.number().min(-2).max(3),
     cy: z.number().min(-2).max(3),
@@ -28,7 +30,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!parsed.success || !z.string().uuid().safeParse(id).success) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
-  const { colour, transform, preview } = parsed.data;
+  const { colour, style, transform, preview } = parsed.data;
 
   const db = supabaseAdmin();
   const { data: design } = await db
@@ -44,9 +46,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "Unknown colour" }, { status: 400 });
   }
 
-  const { data: file, error: downloadError } = await db.storage
-    .from(DESIGNS_BUCKET)
-    .download(design.original_path);
+  // The picture that prints: the original upload, or the AI restyle the customer picked.
+  const sourcePath = style === "original" ? design.original_path : stylePath(id, style);
+  const { data: file, error: downloadError } = await db.storage.from(DESIGNS_BUCKET).download(sourcePath);
   if (downloadError) return NextResponse.json({ error: "Photo upload not found" }, { status: 409 });
   const original = Buffer.from(await file.arrayBuffer());
 
@@ -79,6 +81,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     .from("designs")
     .update({
       colour,
+      style,
+      source_path: sourcePath,
       transform,
       source_width: sourceWidth,
       source_height: sourceHeight,
