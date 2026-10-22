@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 // Daily privacy cleanup (Vercel Cron, see vercel.json). Deletes customer photos,
-// previews and print files 30 days after shipping, or after 7 days if never paid.
+// AI restyles, previews and print files 30 days after shipping, or after 7 days if never paid.
 // Order records are kept.
 export async function GET(request: Request) {
   if (request.headers.get("authorization") !== `Bearer ${requiredEnv("CRON_SECRET")}`) {
@@ -20,9 +20,16 @@ export async function GET(request: Request) {
   const rows = due as { id: string; original_path: string | null; preview_path: string | null; print_path: string | null }[];
   if (rows.length === 0) return NextResponse.json({ deleted: 0 });
 
-  const paths = rows.flatMap((r) => [r.original_path, r.preview_path, r.print_path]).filter((p): p is string => !!p);
-  for (let i = 0; i < paths.length; i += 900) {
-    const { error: removeError } = await db.storage.from(DESIGNS_BUCKET).remove(paths.slice(i, i + 900));
+  // Each design keeps all its files in one folder (original, AI restyles, preview, print).
+  const storage = db.storage.from(DESIGNS_BUCKET);
+  const paths: string[] = rows.flatMap((r) => [r.original_path, r.preview_path, r.print_path]).filter((p): p is string => !!p);
+  for (const r of rows) {
+    const { data: files } = await storage.list(r.id, { limit: 100 });
+    for (const f of files ?? []) paths.push(`${r.id}/${f.name}`);
+  }
+  const unique = [...new Set(paths)];
+  for (let i = 0; i < unique.length; i += 900) {
+    const { error: removeError } = await storage.remove(unique.slice(i, i + 900));
     if (removeError) return NextResponse.json({ error: removeError.message }, { status: 500 });
   }
 
@@ -32,5 +39,5 @@ export async function GET(request: Request) {
     .in("id", rows.map((r) => r.id));
   if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 });
 
-  return NextResponse.json({ deleted: rows.length, files: paths.length });
+  return NextResponse.json({ deleted: rows.length, files: unique.length });
 }

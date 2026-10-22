@@ -34,7 +34,7 @@ export default async function CheckoutSuccess({ searchParams }: { searchParams: 
       <ClearCart />
       <h1 className="text-2xl font-bold">Thank you!</h1>
       {orderNumber && <p className="font-medium">Order #{orderNumber}</p>}
-      <p className="text-neutral-600">
+      <p className="text-muted">
         {paid
           ? `Your payment went through. We've sent a confirmation to ${email ?? "your email"}.`
           : "We're waiting for your bank to confirm the payment. You'll get an email as soon as it does."}

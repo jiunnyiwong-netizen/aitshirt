@@ -15,15 +15,20 @@ export default function Privacy() {
       </ul>
       <h2 className="font-semibold text-neutral-900">How we use it</h2>
       <p>
-        We use your photo only to show you a preview and to print your order. We use your contact details to process
+        We use your photo only to show you a preview and to print your order. If you choose an AI style, we send
+        your photo to Google&apos;s Gemini API, which creates the restyled picture and returns it to us; we only send it
+        when you tap a style. We use your contact details to process
         payment, deliver your order and send you order updates. Payments are handled by Stripe; we never see your
         card or bank details.
       </p>
       <h2 className="font-semibold text-neutral-900">Who can see it</h2>
-      <p>Only you, us, and our printing partner. Your photo is stored privately and is never published or shared.</p>
+      <p>
+        Only you, us, and our printing partner, plus Google if you use an AI style (see above). Your photo is stored
+        privately and is never published.
+      </p>
       <h2 className="font-semibold text-neutral-900">How long we keep it</h2>
       <ul className="list-disc pl-5">
-        <li>Photos and print files: deleted automatically 30 days after your order ships.</li>
+        <li>Photos, AI restyles and print files: deleted automatically 30 days after your order ships.</li>
         <li>Photos from unfinished orders: deleted automatically after 7 days.</li>
         <li>Order records: kept as required for accounting.</li>
       </ul>

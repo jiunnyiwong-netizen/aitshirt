@@ -22,13 +22,16 @@ type Props = {
   mockupSrc: string;
   printArea: PrintArea;
   photo: HTMLImageElement | null;
+  // Changes when a new photo is uploaded, which re-centres it. Swapping in an AI
+  // restyle of the same photo keeps the customer's placement.
+  resetKey: number;
   onChange: (t: DesignTransform | null) => void;
   exportRef: RefObject<DesignerExport | null>;
 };
 
 const MIN_WIDTH_FRACTION = 0.05;
 
-export default function DesignerCanvas({ mockupSrc, printArea: pa, photo, onChange, exportRef }: Props) {
+export default function DesignerCanvas({ mockupSrc, printArea: pa, photo, resetKey, onChange, exportRef }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<Konva.Stage>(null);
   const handleRef = useRef<Konva.Image>(null);
@@ -65,10 +68,14 @@ export default function DesignerCanvas({ mockupSrc, printArea: pa, photo, onChan
     [minScale, maxScale],
   );
 
-  // New photo: centre it in the print area.
+  // New upload: centre it in the print area.
   useEffect(() => {
     setPlacement(photo ? { x: pa.x + pa.width / 2, y: pa.y + pa.height / 2, scale: 1, rotation: 0 } : null);
-  }, [photo, pa.x, pa.y, pa.width, pa.height]);
+  }, [resetKey, pa.x, pa.y, pa.width, pa.height]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!photo) setPlacement(null);
+  }, [photo]);
 
   // Report the placement relative to the print area.
   useEffect(() => {
@@ -166,7 +173,7 @@ export default function DesignerCanvas({ mockupSrc, printArea: pa, photo, onChan
             onMouseDown={(e) => e.target === e.target.getStage() && transformerRef.current?.nodes([])}
           >
             <Layer listening={false}>
-              <Rect width={pa.mockup_width} height={pa.mockup_height} fill="#ffffff" />
+              <Rect width={pa.mockup_width} height={pa.mockup_height} fill="#f3f0ea" />
               {mockup && <KImage image={mockup} width={pa.mockup_width} height={pa.mockup_height} />}
             </Layer>
             <Layer>
@@ -202,7 +209,7 @@ export default function DesignerCanvas({ mockupSrc, printArea: pa, photo, onChan
                 y={pa.y}
                 width={pa.width}
                 height={pa.height}
-                stroke="#3b82f6"
+                stroke="#f0532d"
                 strokeWidth={2 / (viewScale || 1)}
                 dash={[8 / (viewScale || 1), 6 / (viewScale || 1)]}
                 listening={false}
@@ -215,8 +222,8 @@ export default function DesignerCanvas({ mockupSrc, printArea: pa, photo, onChan
                 enabledAnchors={["top-left", "top-right", "bottom-left", "bottom-right"]}
                 anchorSize={22}
                 anchorCornerRadius={11}
-                borderStroke="#3b82f6"
-                anchorStroke="#3b82f6"
+                borderStroke="#f0532d"
+                anchorStroke="#f0532d"
                 ignoreStroke
               />
             </Layer>
@@ -225,7 +232,7 @@ export default function DesignerCanvas({ mockupSrc, printArea: pa, photo, onChan
       </div>
 
       {placement && (
-        <div className="mt-3 grid grid-cols-5 gap-2 text-sm">
+        <div className="grid grid-cols-5 gap-2 border-t border-line p-3 text-sm">
           <ToolButton label="Smaller" onClick={() => nudge({ scale: clampScale(placement.scale / 1.1) })}>−</ToolButton>
           <ToolButton label="Bigger" onClick={() => nudge({ scale: clampScale(placement.scale * 1.1) })}>+</ToolButton>
           <ToolButton label="Rotate left" onClick={() => nudge({ rotation: placement.rotation - 15 })}>⟲</ToolButton>
@@ -251,7 +258,7 @@ function ToolButton({ label, onClick, children }: { label: string; onClick: () =
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="h-11 rounded-lg border border-neutral-300 bg-white text-lg font-medium text-neutral-800 active:bg-neutral-100"
+      className="h-11 rounded-xl border border-line bg-white text-lg font-medium text-ink active:bg-paper"
     >
       {children}
     </button>

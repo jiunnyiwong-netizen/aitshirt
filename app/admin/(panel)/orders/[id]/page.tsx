@@ -21,6 +21,7 @@ type Item = {
     preview_path: string | null;
     print_path: string | null;
     effective_dpi: number | null;
+    style: string;
     files_deleted_at: string | null;
   };
 };
@@ -31,7 +32,7 @@ export default async function AdminOrder({ params }: { params: Promise<{ id: str
   const { data: order } = await db
     .from("orders")
     .select(
-      "*, order_items(id, product_name, colour, size, quantity, unit_price_sen, designs(id, original_path, preview_path, print_path, effective_dpi, files_deleted_at))",
+      "*, order_items(id, product_name, colour, size, quantity, unit_price_sen, designs(id, original_path, preview_path, print_path, effective_dpi, style, files_deleted_at))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -87,6 +88,7 @@ export default async function AdminOrder({ params }: { params: Promise<{ id: str
             <div className="flex-1 space-y-1 text-sm">
               <p className="font-semibold">{i.product_name}</p>
               <p>{i.colour} · size {i.size} · qty {i.quantity}</p>
+              {i.designs.style !== "original" && <p className="text-neutral-500">AI style: {i.designs.style}</p>}
               {i.designs.effective_dpi !== null && (
                 <p className={i.designs.effective_dpi < 150 ? "text-amber-700" : "text-neutral-500"}>Prints at {i.designs.effective_dpi} DPI</p>
               )}
