@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ClearCart } from "@/components/cart/ClearCart";
+import { FeedbackForm } from "@/components/feedback/FeedbackForm";
 import { stripe } from "@/lib/stripe";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +11,7 @@ export default async function CheckoutSuccess({ searchParams }: { searchParams: 
   let email: string | null = null;
   let paid = false;
   let orderNumber: string | null = null;
+  let feedbackToken: string | null = null;
   if (session_id?.startsWith("cs_")) {
     try {
       const session = await stripe().checkout.sessions.retrieve(session_id);
@@ -18,6 +21,12 @@ export default async function CheckoutSuccess({ searchParams }: { searchParams: 
     } catch {
       // Unknown session: show the generic message.
     }
+    const { data } = await supabaseAdmin()
+      .from("orders")
+      .select("feedback_token")
+      .eq("stripe_session_id", session_id)
+      .maybeSingle();
+    feedbackToken = data?.feedback_token ?? null;
   }
 
   return (
@@ -30,6 +39,7 @@ export default async function CheckoutSuccess({ searchParams }: { searchParams: 
           ? `Your payment went through. We've sent a confirmation to ${email ?? "your email"}.`
           : "We're waiting for your bank to confirm the payment. You'll get an email as soon as it does."}
       </p>
+      {feedbackToken && <FeedbackForm token={feedbackToken} />}
       <Link href="/" className="inline-block underline">Back to the shop</Link>
     </div>
   );

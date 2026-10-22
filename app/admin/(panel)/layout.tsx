@@ -16,7 +16,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between text-sm">
-        <Link href="/admin" className="font-semibold">Orders</Link>
+        <nav className="flex gap-4 font-semibold">
+          <Link href="/admin">Orders</Link>
+          <Link href="/admin/feedback">Feedback</Link>
+        </nav>
         <form action={logout} className="flex items-center gap-3 text-neutral-500">
           <span className="hidden sm:inline">{user.email}</span>
           <button className="underline">Log out</button>
