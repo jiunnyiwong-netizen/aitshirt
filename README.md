@@ -9,7 +9,8 @@ Next.js (App Router) · Supabase · Stripe Checkout · Resend · Vercel
 1. `npm install`
 2. Copy `.env.example` to `.env.local` and fill in the Supabase keys
    (Supabase → Project settings → API). `NEXT_PUBLIC_SITE_URL` stays `http://localhost:3000` locally.
-3. In the Supabase SQL editor, run `supabase/migrations/0001_init.sql`, then `0002_cleanup.sql`, then `supabase/seed.sql`.
+3. The database is already set up in the `tee-store` Supabase project (tables, storage bucket and the 3 placeholder shirts).
+   For a fresh project, run `supabase/migrations/0001_init.sql`, then `0002_cleanup.sql`, then `supabase/seed.sql` in the SQL editor.
 4. `npm run dev` and open http://localhost:3000. On your phone, use your computer's network address
    (for example `http://192.168.1.20:3000`) while on the same Wi-Fi.
 
